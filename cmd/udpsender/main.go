@@ -46,25 +46,23 @@ func getLinesChannel(file io.ReadCloser) <-chan string {
 }
 
 func main() {
-
-	ln, err := net.Listen("tcp", ":42069")
+	dst, err := net.ResolveUDPAddr("udp", ":42069")
 	if err != nil {
-		fmt.Println("failed to listen", err)
+		fmt.Println("Error resolving address:", err)
 		return
 	}
 
-	defer ln.Close()
+	
 	for {
-		conn, err := ln.Accept()
+		conn, err := net.DialUDP("udp", nil, dst)
 		if err != nil {
-			fmt.Println("failed to Accept connection", err)
+			fmt.Println("Error dialing server:", err)
 			return
-		}
-
-		fmt.Println("connection has been established")
-		for line := range getLinesChannel(conn) {
-			fmt.Println(line)
 		}
 	}
 
+	// fmt.Println("connection has been established")
+	for line := range getLinesChannel(conn) {
+		fmt.Println(line)
+	}
 }
